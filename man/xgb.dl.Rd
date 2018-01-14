@@ -14,7 +14,7 @@ xgb.dl(commit = "master", compiler = "gcc",
 
 \item{repo}{The link to the repository. Defaults to \code{"https://github.com/dmlc/xgboost"}.}
 
-\item{use_gpu}{Whether to install with GPU enabled or not. Defaults to \code{FALSE}. Not supported on Linux, do it by yourself!}
+\item{use_gpu}{Whether to install with GPU enabled or not. Defaults to \code{FALSE}.}
 }
 \value{
 A logical describing whether the xgboost package was installed or not (\code{TRUE} if installed, \code{FALSE} if installation failed AND you did not have the package before).
