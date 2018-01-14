@@ -5,7 +5,7 @@
 #' @param commit The commit / branch to use. Put \code{""} for master branch. Defaults to \code{"master"}.
 #' @param compiler Applicable only to Windows. The compiler to use (either \code{"gcc"} for MinGW, \code{"Visual Studio 15 2017"} for Visual Studio). Defaults to \code{"gcc"}. Use \code{"Visual Studio 14 2015 Win64"} for the officially supported Visual Studio 2015.
 #' @param repo The link to the repository. Defaults to \code{"https://github.com/dmlc/xgboost"}.
-#' @param use_gpu Whether to install with GPU enabled or not. Defaults to \code{FALSE}. Not supported on Linux, do it by yourself!
+#' @param use_gpu Whether to install with GPU enabled or not. Defaults to \code{FALSE}.
 #' 
 #' @return A logical describing whether the xgboost package was installed or not (\code{TRUE} if installed, \code{FALSE} if installation failed AND you did not have the package before).
 #' 
