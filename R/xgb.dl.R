@@ -5,28 +5,32 @@
 #' @param commit The commit / branch to use. Put \code{""} for master branch. Defaults to \code{"master"}.
 #' @param compiler Applicable only to Windows. The compiler to use (either \code{"gcc"} for MinGW, \code{"Visual Studio 15 2017"} for Visual Studio). Defaults to \code{"gcc"}. Use \code{"Visual Studio 14 2015 Win64"} for the officially supported Visual Studio 2015.
 #' @param repo The link to the repository. Defaults to \code{"https://github.com/dmlc/xgboost"}.
-#' @param use_gpu Whether to install with GPU enabled or not. Defaults to \code{FALSE}.
+#' @param use_gpu Whether to install with GPU enabled or not. Defaults to \code{FALSE}. Disabled for Windows + MinGW.
+#' @param use_avx Whether to install with AVX enabled or not. Defaults to \code{FALSE}. Disabled for Windows + MinGW.
 #' 
 #' @return A logical describing whether the xgboost package was installed or not (\code{TRUE} if installed, \code{FALSE} if installation failed AND you did not have the package before).
 #' 
 #' @examples
 #' \dontrun{
-#' # Install using Visual Studio
+#' # Install using Visual Studio 2017
 #' # (Download: http://landinghub.visualstudio.com/visual-cpp-build-tools)
-#' xgb.dl(commit = "master",
-#'        compiler = "Visual Studio 15 2017 Win64",
-#'        repo = "https://github.com/dmlc/xgboost")
+#' xgb.dl(compiler = "Visual Studio 15 2017 Win64")
 #' 
 #' # Install using Rtools MinGW or use Linux compilation
-#' xgb.dl(commit = "master",
-#'        compiler = "gcc",
-#'        repo = "https://github.com/dmlc/xgboost")
+#' xgb.dl(compiler = "gcc")
 #' 
-#' # Install using Visual Studio with GPU support
+#' # Install master using Visual Studio 2017 with GPU support
 #' xgb.dl(commit = "master",
 #'        compiler = "Visual Studio 15 2017 Win64",
 #'        repo = "https://github.com/dmlc/xgboost",
 #'        use_gpu = TRUE)
+#' 
+#' # Install master using Visual Studio 2017 with GPU support and AVX speedups
+#' xgb.dl(commit = "master",
+#'        compiler = "Visual Studio 15 2017 Win64",
+#'        repo = "https://github.com/dmlc/xgboost",
+#'        use_gpu = TRUE,
+#'        use_avx = TRUE)
 #' 
 #' # Test package
 #' library(xgboost)
@@ -47,7 +51,8 @@
 xgb.dl <- function(commit = "master",
                    compiler = "gcc",
                    repo = "https://github.com/dmlc/xgboost",
-                   use_gpu = FALSE) {
+                   use_gpu = FALSE,
+                   use_avx = FALSE) {
   
   # Generates temporary dir
   xgb_git_dir <- tempdir()
@@ -81,7 +86,7 @@ xgb.dl <- function(commit = "master",
     } else {
       
       cat(paste0("mkdir build && cd build", "\n"), file = xgb_git_file, append = TRUE)
-      cat(paste0("cmake .. -G\"", compiler, "\" ", ifelse(use_gpu == TRUE, "-DUSE_CUDA=ON", ""), " -DR_LIB=ON", "\n"), file = xgb_git_file, append = TRUE)
+      cat(paste0("cmake .. -G\"", compiler, "\"", ifelse(use_gpu == TRUE, " -DUSE_CUDA=ON", ""), ifelse(use_avx == TRUE, " -DUSE_AVX=ON", ""), " -DR_LIB=ON", "\n"), file = xgb_git_file, append = TRUE)
       cat("cmake --build . --target install --config Release\n", file = xgb_git_file, append = TRUE)
       
     }
@@ -113,7 +118,7 @@ xgb.dl <- function(commit = "master",
     # Compile
     
     cat(paste0("mkdir build && cd build", "\n"), file = xgb_git_file, append = TRUE)
-    cat(paste0("cmake .. ", ifelse(use_gpu == TRUE, "-DUSE_CUDA=ON", ""), " -DR_LIB=ON", "\n"), file = xgb_git_file, append = TRUE)
+    cat(paste0("cmake ..", ifelse(use_gpu == TRUE, " -DUSE_CUDA=ON", ""), ifelse(use_avx == TRUE, " -DUSE_AVX=ON", ""), " -DR_LIB=ON", "\n"), file = xgb_git_file, append = TRUE)
     cat(paste0("make install -j", "\n"), file = xgb_git_file, append = TRUE)
     
     # Do actions
