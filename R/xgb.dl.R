@@ -117,8 +117,8 @@ xgb.dl <- function(commit = "master",
     
     # Compile
     
-    cat(paste0("mkdir build", "\n"), file = xgb_git_file, append = TRUE)
-    cat(paste0("cmake ", ifelse(use_gpu == TRUE, " -DUSE_CUDA=ON", ""), ifelse(use_avx == TRUE, " -DUSE_AVX=ON", ""), " -DR_LIB=ON", "\n"), file = xgb_git_file, append = TRUE)
+    cat(paste0("mkdir build && cd build", "\n"), file = xgb_git_file, append = TRUE)
+    cat(paste0("cmake .. ", ifelse(use_gpu == TRUE, " -DUSE_CUDA=ON", ""), ifelse(use_avx == TRUE, " -DUSE_AVX=ON", ""), " -DR_LIB=ON", "\n"), file = xgb_git_file, append = TRUE)
     cat(paste0("make install -j", "\n"), file = xgb_git_file, append = TRUE)
     
     # Set permissions on script
