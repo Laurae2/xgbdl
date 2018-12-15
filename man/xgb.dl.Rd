@@ -5,7 +5,8 @@
 \title{Install xgboost from source}
 \usage{
 xgb.dl(commit = "master", compiler = "gcc",
-  repo = "https://github.com/dmlc/xgboost", use_gpu = FALSE)
+  repo = "https://github.com/dmlc/xgboost", use_gpu = FALSE,
+  use_avx = FALSE, CUDA = NULL)
 }
 \arguments{
 \item{commit}{The commit / branch to use. Put \code{""} for master branch. Defaults to \code{"master"}.}
@@ -14,7 +15,11 @@ xgb.dl(commit = "master", compiler = "gcc",
 
 \item{repo}{The link to the repository. Defaults to \code{"https://github.com/dmlc/xgboost"}.}
 
-\item{use_gpu}{Whether to install with GPU enabled or not. Defaults to \code{FALSE}.}
+\item{use_gpu}{Whether to install with GPU enabled or not. Defaults to \code{FALSE}. Disabled for Windows + MinGW.}
+
+\item{use_avx}{Whether to install with AVX enabled or not. Defaults to \code{FALSE}. Disabled for Windows + MinGW.}
+
+\item{CUDA}{Path to CUDA, gcc, and g++ if cmake does not recognize CUDA path. Defaults to \code{list(NULL, NULL, NULL)}. Disabled for Windows. Please specify a list. Example: \code{CUDA = list("/usr/lib/cuda", "/usr/bin/gcc-6", "/usr/bin/g++-6")}.}
 }
 \value{
 A logical describing whether the xgboost package was installed or not (\code{TRUE} if installed, \code{FALSE} if installation failed AND you did not have the package before).
@@ -24,22 +29,25 @@ Downloads and install xgboost from repository. Allows to customize the commit/br
 }
 \examples{
 \dontrun{
-# Install using Visual Studio
+# Install using Visual Studio 2017
 # (Download: http://landinghub.visualstudio.com/visual-cpp-build-tools)
-xgb.dl(commit = "master",
-       compiler = "Visual Studio 15 2017 Win64",
-       repo = "https://github.com/dmlc/xgboost")
+xgb.dl(compiler = "Visual Studio 15 2017 Win64")
 
 # Install using Rtools MinGW or use Linux compilation
-xgb.dl(commit = "master",
-       compiler = "gcc",
-       repo = "https://github.com/dmlc/xgboost")
+xgb.dl(compiler = "gcc")
 
-# Install using Visual Studio with GPU support
+# Install master using Visual Studio 2017 with GPU support
 xgb.dl(commit = "master",
        compiler = "Visual Studio 15 2017 Win64",
        repo = "https://github.com/dmlc/xgboost",
        use_gpu = TRUE)
+
+# Install master using Visual Studio 2017 with GPU support and AVX speedups
+xgb.dl(commit = "master",
+       compiler = "Visual Studio 15 2017 Win64",
+       repo = "https://github.com/dmlc/xgboost",
+       use_gpu = TRUE,
+       use_avx = TRUE)
 
 # Test package
 library(xgboost)
@@ -50,9 +58,31 @@ dtrain <- xgb.DMatrix(agaricus.train$data, label = agaricus.train$label)
 dtest <- xgb.DMatrix(agaricus.test$data, label = agaricus.test$label)
 watchlist <- list(train = dtrain, eval = dtest)
 
-param <- list(max_depth = 2, eta = 1, silent = 1, nthread = 2, 
+param <- list(max_depth = 2, eta = 1, silent = 1, nthread = 2,
               objective = "binary:logistic", eval_metric = "auc")
 bst <- xgb.train(param, dtrain, nrounds = 2, watchlist)
+
+# Install with GPU support on Linux, CUDA 10 + gcc-6 + g++-6
+xgb.dl(compiler = "gcc",
+       commit = "a2dc929",
+       use_avx = FALSE,
+       use_gpu = TRUE,
+       CUDA = list("/usr/lib/cuda", "/usr/bin/gcc-6", "/usr/bin/g++-6"))
+
+# Test GPU package
+library(xgboost)
+data(agaricus.train, package = "xgboost")
+data(agaricus.test, package = "xgboost")
+
+dtrain <- xgb.DMatrix(agaricus.train$data, label = agaricus.train$label)
+dtest <- xgb.DMatrix(agaricus.test$data, label = agaricus.test$label)
+watchlist <- list(train = dtrain, eval = dtest)
+
+param <- list(max_depth = 2, eta = 1, silent = 1, nthread = 2,
+              objective = "binary:logistic", eval_metric = "auc",
+              max_bin = 64, tree_method = "gpu_hist")
+bst <- xgb.train(param, dtrain, nrounds = 2, watchlist)
+
 }
 
 }
