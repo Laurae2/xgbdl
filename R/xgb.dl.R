@@ -8,6 +8,7 @@
 #' @param use_gpu Whether to install with GPU enabled or not. Defaults to \code{FALSE}. Disabled for Windows + MinGW.
 #' @param use_avx Whether to install with AVX enabled or not. Defaults to \code{FALSE}. Disabled for Windows + MinGW.
 #' @param CUDA Path to CUDA, gcc, and g++ if cmake does not recognize CUDA path. Defaults to \code{list(NULL, NULL, NULL)}. Disabled for Windows. Please specify a list. Example: \code{CUDA = list("/usr/lib/cuda", "/usr/bin/gcc-6", "/usr/bin/g++-6")}.
+#' @param NCCL Activate NCCL by specifying the path to NCCL. Defaults to \code{NULL}. Disabled for Windows. Example: \code{NCCL = "/usr/lib/x86_64-linux-gnu"}
 #' 
 #' @return A logical describing whether the xgboost package was installed or not (\code{TRUE} if installed, \code{FALSE} if installation failed AND you did not have the package before).
 #' 
@@ -76,7 +77,8 @@ xgb.dl <- function(commit = "master",
                    repo = "https://github.com/dmlc/xgboost",
                    use_gpu = FALSE,
                    use_avx = FALSE,
-                   CUDA = NULL) {
+                   CUDA = NULL,
+                   NCCL = NULL) {
   
   # Generates temporary dir
   xgb_git_dir <- tempdir()
@@ -143,9 +145,17 @@ xgb.dl <- function(commit = "master",
     
     cat(paste0("mkdir build && cd build", "\n"), file = xgb_git_file, append = TRUE)
     if (is.null(CUDA[[1]]) == TRUE) {
-      cat(paste0("cmake .. ", ifelse(use_gpu == TRUE, " -DUSE_CUDA=ON", ""), ifelse(use_avx == TRUE, " -DUSE_AVX=ON", ""), " -DR_LIB=ON", "\n"), file = xgb_git_file, append = TRUE)
+      if (is.null(NCCL) == TRUE) {
+        cat(paste0("cmake .. ", ifelse(use_gpu == TRUE, " -DUSE_CUDA=ON", ""), ifelse(use_avx == TRUE, " -DUSE_AVX=ON", ""), " -DR_LIB=ON", "\n"), file = xgb_git_file, append = TRUE)
+      } else {
+        cat(paste0("cmake .. ", ifelse(use_gpu == TRUE, paste0(" -DUSE_CUDA=ON -DUSE_NCCL=ON -DNCCL_ROOT=", NCCL), ""), ifelse(use_avx == TRUE, " -DUSE_AVX=ON", ""), " -DR_LIB=ON", "\n"), file = xgb_git_file, append = TRUE)
+      }
     } else {
-      cat(paste0("cmake .. ", ifelse(use_gpu == TRUE, paste0(" -DUSE_CUDA=ON -DCUDA_TOOLKIT_ROOT_DIR=", CUDA[[1]], " -DCMAKE_C_COMPILER=", CUDA[[2]], " -DCMAKE_CXX_COMPILER=", CUDA[[3]]), ""), ifelse(use_avx == TRUE, " -DUSE_AVX=ON", ""), " -DR_LIB=ON", "\n"), file = xgb_git_file, append = TRUE)
+      if (is.null(NCCL) == TRUE) {
+        cat(paste0("cmake .. ", ifelse(use_gpu == TRUE, paste0(" -DUSE_CUDA=ON -DCUDA_TOOLKIT_ROOT_DIR=", CUDA[[1]], " -DCMAKE_C_COMPILER=", CUDA[[2]], " -DCMAKE_CXX_COMPILER=", CUDA[[3]]), ""), ifelse(use_avx == TRUE, " -DUSE_AVX=ON", ""), " -DR_LIB=ON", "\n"), file = xgb_git_file, append = TRUE)
+      } else {
+        cat(paste0("cmake .. ", ifelse(use_gpu == TRUE, paste0(" -DUSE_CUDA=ON -DCUDA_TOOLKIT_ROOT_DIR=", CUDA[[1]], " -DCMAKE_C_COMPILER=", CUDA[[2]], " -DCMAKE_CXX_COMPILER=", CUDA[[3]], " -DUSE_NCCL=ON -DNCCL_ROOT=", NCCL), ""), ifelse(use_avx == TRUE, " -DUSE_AVX=ON", ""), " -DR_LIB=ON", "\n"), file = xgb_git_file, append = TRUE)
+      }
     }
     cat(paste0("make install -j", "\n"), file = xgb_git_file, append = TRUE)
     

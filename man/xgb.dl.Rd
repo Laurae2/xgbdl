@@ -6,7 +6,7 @@
 \usage{
 xgb.dl(commit = "master", compiler = "gcc",
   repo = "https://github.com/dmlc/xgboost", use_gpu = FALSE,
-  use_avx = FALSE, CUDA = NULL)
+  use_avx = FALSE, CUDA = NULL, NCCL = NULL)
 }
 \arguments{
 \item{commit}{The commit / branch to use. Put \code{""} for master branch. Defaults to \code{"master"}.}
@@ -20,6 +20,8 @@ xgb.dl(commit = "master", compiler = "gcc",
 \item{use_avx}{Whether to install with AVX enabled or not. Defaults to \code{FALSE}. Disabled for Windows + MinGW.}
 
 \item{CUDA}{Path to CUDA, gcc, and g++ if cmake does not recognize CUDA path. Defaults to \code{list(NULL, NULL, NULL)}. Disabled for Windows. Please specify a list. Example: \code{CUDA = list("/usr/lib/cuda", "/usr/bin/gcc-6", "/usr/bin/g++-6")}.}
+
+\item{NCCL}{Activate NCCL by specifying the path to NCCL. Defaults to \code{NULL}. Disabled for Windows. Example: \code{NCCL = "/usr/lib/x86_64-linux-gnu"}}
 }
 \value{
 A logical describing whether the xgboost package was installed or not (\code{TRUE} if installed, \code{FALSE} if installation failed AND you did not have the package before).
