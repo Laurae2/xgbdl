@@ -5,6 +5,7 @@
 #' @param commit The commit / branch to use. Put \code{""} for master branch. Defaults to \code{"master"}.
 #' @param compiler Applicable only to Windows. The compiler to use (either \code{"gcc"} for MinGW, \code{"Visual Studio 15 2017"} for Visual Studio). Defaults to \code{"gcc"}. Use \code{"Visual Studio 14 2015 Win64"} for the officially supported Visual Studio 2015.
 #' @param repo The link to the repository. Defaults to \code{"https://github.com/dmlc/xgboost"}.
+#' @param cores The number of cores to use for compilation, ignored for Visual Studio. Defaults to \code{1}.
 #' @param use_gpu Whether to install with GPU enabled or not. Defaults to \code{FALSE}. Disabled for Windows + MinGW.
 #' @param use_avx Whether to install with AVX enabled or not. Defaults to \code{FALSE}. Disabled for Windows + MinGW.
 #' @param CUDA Path to CUDA, gcc, and g++ if cmake does not recognize CUDA path. Defaults to \code{list(NULL, NULL, NULL)}. Disabled for Windows. Please specify a list. Example: \code{CUDA = list("/usr/lib/cuda", "/usr/bin/gcc-6", "/usr/bin/g++-6")}.
@@ -101,6 +102,7 @@
 xgb.dl <- function(commit = "master",
                    compiler = "gcc",
                    repo = "https://github.com/dmlc/xgboost",
+                   cores = 1,
                    use_gpu = FALSE,
                    use_avx = FALSE,
                    CUDA = NULL,
@@ -183,7 +185,7 @@ xgb.dl <- function(commit = "master",
         cat(paste0("cmake .. ", ifelse(use_gpu == TRUE, paste0(" -DUSE_CUDA=ON -DCUDA_TOOLKIT_ROOT_DIR=", CUDA[[1]], " -DCMAKE_C_COMPILER=", CUDA[[2]], " -DCMAKE_CXX_COMPILER=", CUDA[[3]], " -DUSE_NCCL=ON -DNCCL_ROOT=", NCCL), ""), ifelse(use_avx == TRUE, " -DUSE_AVX=ON", ""), " -DR_LIB=ON", "\n"), file = xgb_git_file, append = TRUE)
       }
     }
-    cat(paste0("make install -j", "\n"), file = xgb_git_file, append = TRUE)
+    cat(paste0("make install -j", cores, "\n"), file = xgb_git_file, append = TRUE)
     
     # Set permissions on script
     Sys.chmod(xgb_git_file, mode = "0777", use_umask = TRUE)

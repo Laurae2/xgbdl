@@ -5,7 +5,7 @@
 \title{Install xgboost from source}
 \usage{
 xgb.dl(commit = "master", compiler = "gcc",
-  repo = "https://github.com/dmlc/xgboost", use_gpu = FALSE,
+  repo = "https://github.com/dmlc/xgboost", cores = 1, use_gpu = FALSE,
   use_avx = FALSE, CUDA = NULL, NCCL = NULL)
 }
 \arguments{
@@ -14,6 +14,8 @@ xgb.dl(commit = "master", compiler = "gcc",
 \item{compiler}{Applicable only to Windows. The compiler to use (either \code{"gcc"} for MinGW, \code{"Visual Studio 15 2017"} for Visual Studio). Defaults to \code{"gcc"}. Use \code{"Visual Studio 14 2015 Win64"} for the officially supported Visual Studio 2015.}
 
 \item{repo}{The link to the repository. Defaults to \code{"https://github.com/dmlc/xgboost"}.}
+
+\item{cores}{The number of cores to use for compilation, ignored for Visual Studio. Defaults to \code{1}.}
 
 \item{use_gpu}{Whether to install with GPU enabled or not. Defaults to \code{FALSE}. Disabled for Windows + MinGW.}
 
